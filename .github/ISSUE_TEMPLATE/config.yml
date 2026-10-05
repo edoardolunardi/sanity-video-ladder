@@ -1,0 +1,6 @@
+# The forms below suggest what helps; none of it is a wall. A blank issue is fine too.
+blank_issues_enabled: true
+contact_links:
+  - name: Read how the pipeline works
+    url: https://github.com/edoardolunardi/sanity-video-ladder#how-it-works
+    about: The probe, the posters, the ladder, the key layout and the caching, in one section. Handy before reporting a rendition that looks wrong.

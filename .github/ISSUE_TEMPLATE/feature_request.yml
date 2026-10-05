@@ -1,0 +1,25 @@
+name: Feature request
+description: A storage provider, a host, an option or a part of the pipeline that is missing.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas are welcome. Only the first field is required. For context, the package transcodes in the
+        editor's browser, stores plain files in an S3-compatible bucket and leaves the site component to
+        the host, so the requests that fit best are about that pipeline; but if you are not sure where an
+        idea sits, open it anyway and we will work it out.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: The situation, the option, or what the pipeline should produce, and what you would do with it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: An example
+      description: A config, a host setup, a link. Anything that makes it concrete.

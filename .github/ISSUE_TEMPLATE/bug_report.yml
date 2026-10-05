@@ -1,0 +1,62 @@
+name: Bug report
+description: An upload, a rendition, the endpoint, the library tool or the CLI that does not do what the README says.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Only the first field is required; the rest help find the cause faster, so
+        fill in what you can. If you only have an error message and a hunch, that is fine too.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead. If something threw, the error is enough.
+      placeholder: The upload reached 100% but the field stayed empty, and the console showed a 403 from the bucket.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How to see it
+      description: |
+        The steps, and the file if it matters (its codec, resolution and length are often enough). For a
+        processing failure, what the probe notice said when the file was picked.
+
+  - type: textarea
+    id: config
+    attributes:
+      label: The call or the config
+      description: The `videoLadder()` options, the `createVideoHandler()` call, or the CLI command and config file, with secrets removed.
+      render: ts
+      placeholder: 'videoLadder({ apiVersion: "2026-01-01", typeName: "appVideo", tiers: [240, 720] });'
+
+  - type: input
+    id: host
+    attributes:
+      label: Host framework and storage
+      placeholder: Next.js 16 with Cloudflare R2, Astro 7 with Amazon S3
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      description: The browser the Studio ran in. Transcoding happens there.
+      placeholder: Chrome 143 on macOS, Safari 26.1
+
+  - type: input
+    id: version
+    attributes:
+      label: sanity-video-ladder version
+      placeholder: 0.1.0
+
+  - type: markdown
+    attributes:
+      value: |
+        Two things account for a good share of reports, in case they save you a wait: an upload that fails
+        right away is almost always the bucket's CORS policy (it must allow `PUT` from the Studio origin
+        with the `content-type` and `cache-control` headers), and a file the probe rejects needs a
+        re-export the browser can decode (H.264, 8-bit 4:2:0, Level 5.1 or lower). The README's Storage
+        and Caveats sections cover both.

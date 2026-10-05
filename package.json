@@ -1,0 +1,121 @@
+{
+  "name": "sanity-video-ladder",
+  "version": "0.1.0",
+  "description": "Browser-transcoded video renditions for Sanity, uploaded straight to S3-compatible storage.",
+  "keywords": [
+    "sanity",
+    "sanity-plugin",
+    "video",
+    "renditions",
+    "webcodecs",
+    "mediabunny",
+    "r2",
+    "s3"
+  ],
+  "license": "MIT",
+  "author": "Edoardo Lunardi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edoardolunardi/sanity-video-ladder.git"
+  },
+  "homepage": "https://github.com/edoardolunardi/sanity-video-ladder#readme",
+  "bugs": "https://github.com/edoardolunardi/sanity-video-ladder/issues",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js",
+      "default": "./dist/core/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js",
+      "default": "./dist/server/index.js"
+    },
+    "./storage": {
+      "types": "./dist/storage/index.d.ts",
+      "import": "./dist/storage/index.js",
+      "default": "./dist/storage/index.js"
+    },
+    "./studio": {
+      "types": "./dist/studio/index.d.ts",
+      "import": "./dist/studio/index.js",
+      "default": "./dist/studio/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "sanity-video-ladder": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "check": "npm run check.types && npm run check.biome",
+    "check.types": "tsc --noEmit",
+    "check.biome": "biome lint --diagnostic-level=error",
+    "format": "biome check --write --unsafe",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "release": "node scripts/release.mjs",
+    "prepack": "npm run build",
+    "prepare": "lefthook install"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
+    "@aws-sdk/s3-request-presigner": "^3.1146.0",
+    "@mediabunny/aac-encoder": "^1.61.1",
+    "mediabunny": "^1.61.1"
+  },
+  "peerDependencies": {
+    "@sanity/client": ">=7",
+    "@sanity/icons": "^5",
+    "@sanity/ui": "^4",
+    "react": "^19",
+    "sanity": "^6",
+    "styled-components": "^6"
+  },
+  "peerDependenciesMeta": {
+    "@sanity/icons": {
+      "optional": true
+    },
+    "@sanity/ui": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "sanity": {
+      "optional": true
+    },
+    "styled-components": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "@sanity/client": "^8.9.0",
+    "@sanity/icons": "^5.2.3",
+    "@sanity/ui": "^4.3.0",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "lefthook": "^2.1.16",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "sanity": "^6.17.0",
+    "styled-components": "^6.5.3",
+    "typescript": "^7.0.2"
+  }
+}
