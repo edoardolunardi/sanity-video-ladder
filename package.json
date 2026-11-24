@@ -1,6 +1,6 @@
 {
   "name": "sanity-video-ladder",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Browser-transcoded video renditions for Sanity, uploaded straight to S3-compatible storage.",
   "keywords": [
     "sanity",

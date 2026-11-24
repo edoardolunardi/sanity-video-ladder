@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-24
+
 ### Added
 
 - `videoPoster(renditions, sources)` in `sanity-video-ladder/core`, which returns the poster of the
