@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-24
+
 ### Fixed
 
 - A new document no longer fails validation on a video field nobody used. The playback switches had
