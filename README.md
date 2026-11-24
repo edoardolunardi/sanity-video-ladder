@@ -379,6 +379,10 @@ in draft mode too.
 
 There is no top-level URL: the untouched original is a rendition like any other.
 
+`playback` is written, with the defaults, when a video is uploaded or linked, so a field holds no
+object at all until then. Its switches show once a rendition exists. Read it with the defaults filling
+any gap, as the examples above do, since a value made outside the Studio may lack it.
+
 ## How it works
 
 **Probe.** Picking a file dry-runs the real pipeline on a 0.3 second slice: the same MediaBunny

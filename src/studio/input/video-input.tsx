@@ -362,7 +362,7 @@ export function VideoInput(props: ObjectInputProps<Record<string, unknown>>) {
         renditions,
         placeholder: frame.placeholder,
         dimensions: { width: frame.width, height: frame.height },
-        // `set` replaces the whole object, so carry the editor's playback over (initial values only apply once).
+        // `set` replaces the whole object, so carry the editor's playback over; the schema has no initial values to fall back on.
         ...(config.playback ? { playback: playbackFrom(value) } : {}),
       };
 

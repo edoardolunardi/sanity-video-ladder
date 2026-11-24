@@ -2,6 +2,7 @@
 
 import { defineArrayMember, defineField, defineType, type ObjectInputProps } from "sanity";
 import { friendlyNameFromUrl } from "../core/layout.ts";
+import { hasRenditions } from "../core/renditions.ts";
 import { type VideoLadderConfig, VideoLadderProvider } from "./config.tsx";
 import { VideoInput } from "./input/video-input.tsx";
 
@@ -83,11 +84,15 @@ export function createVideoType(config: VideoLadderConfig) {
               description:
                 "How the clip plays on the site. Defaults suit a silent background loop; turn on controls for a video meant to be watched.",
               options: { columns: 2, collapsible: true, collapsed: false },
+              // No initial values: Sanity writes nested ones into every new document, so an unused video
+              // field would hold an object and trip the renditions gate. The input writes the defaults on
+              // upload or link instead, which is also why the switches wait for a rendition.
+              hidden: ({ parent }) => !hasRenditions(parent),
               fields: [
-                defineField({ name: "autoplay", title: "Autoplay", type: "boolean", initialValue: true }),
-                defineField({ name: "muted", title: "Muted", type: "boolean", initialValue: true }),
-                defineField({ name: "loop", title: "Loop", type: "boolean", initialValue: true }),
-                defineField({ name: "controls", title: "Controls", type: "boolean", initialValue: false }),
+                defineField({ name: "autoplay", title: "Autoplay", type: "boolean" }),
+                defineField({ name: "muted", title: "Muted", type: "boolean" }),
+                defineField({ name: "loop", title: "Loop", type: "boolean" }),
+                defineField({ name: "controls", title: "Controls", type: "boolean" }),
               ],
             }),
           ]

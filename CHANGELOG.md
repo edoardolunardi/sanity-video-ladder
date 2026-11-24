@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- A new document no longer fails validation on a video field nobody used. The playback switches had
+  initial values, which Sanity writes into every new document, so each video field (a hidden one
+  too) held an object without renditions and the renditions check refused to publish. The defaults
+  are now written on upload or link, and the switches show once a rendition exists. Documents created
+  in the Studio on 0.1.0 may still hold such an object; find them with
+  `*[defined(<field>) && !defined(<field>.renditions)]` and unset the field, or upload a video into it.
+
 ## [0.1.0] - 2026-10-05
 
 ### Added
