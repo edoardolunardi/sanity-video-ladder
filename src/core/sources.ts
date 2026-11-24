@@ -82,3 +82,26 @@ export function videoSources(
 
   return [...sources.slice(0, end), { src: fallbackSrc }];
 }
+
+/** The poster for a `<video>` rendering `sources`: the poster of the rendition behind the first source,
+ *  else of the next source whose rendition has one, else `undefined`.
+ *
+ *  The first source is the widest condition's, so its poster stays sharp at every size the video renders.
+ *  Render it as the plain `poster` attribute on the server. The `placeholder` is not a poster: at 24 pixels
+ *  it shows stretched and blocky until the video plays, so it belongs behind the video as a blurred
+ *  background, where it fills the box while the poster loads and stays when there is none (a video stored
+ *  before rungs had posters). */
+export function videoPoster(
+  renditions: readonly Rendition[] | null | undefined,
+  sources: readonly VideoSource[]
+): string | undefined {
+  for (const source of sources) {
+    const poster = renditions?.find((rendition) => rendition.url === source.src)?.poster;
+
+    if (poster) {
+      return poster;
+    }
+  }
+
+  return undefined;
+}

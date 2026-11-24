@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { ladder, stega } from "../fixtures.ts";
-import { parseSourceRules, videoSources } from "./sources.ts";
+import { parseSourceRules, videoPoster, videoSources } from "./sources.ts";
 import type { Quality } from "./types.ts";
 
 test("videoSources emits one source per media condition, in the order written", () => {
@@ -96,4 +96,35 @@ test("parseSourceRules throws on an entry that does not end in a tier", () => {
   assert.throws(() => parseSourceRules("hd"), /Invalid quality "hd" in "hd"/);
   assert.throws(() => parseSourceRules("(min-width: 48rem) 720p, 240"), /Invalid quality "720p"/);
   assert.throws(() => parseSourceRules("(min-width: 48rem), 240"), /Invalid quality "48rem\)"/);
+});
+
+test("videoPoster takes the poster of the first source's rendition", () => {
+  const renditions = [
+    { quality: "original" as Quality, url: "https://m/v/original.mp4", poster: "https://m/v/poster.webp" },
+    { quality: "240" as Quality, url: "https://m/v/240p-abc.mp4", poster: "https://m/v/240p-abc-poster.webp" },
+    { quality: "720" as Quality, url: "https://m/v/720p-abc.mp4", poster: "https://m/v/720p-abc-poster.webp" },
+  ];
+
+  assert.equal(videoPoster(renditions, videoSources(renditions, "720")), "https://m/v/720p-abc-poster.webp");
+  assert.equal(videoPoster(renditions, videoSources(renditions, "(min-width: 48rem) original, 240")), "https://m/v/poster.webp");
+});
+
+test("videoPoster falls back to the next source with a poster, else undefined", () => {
+  // A rung stored before rungs had posters, under one that has one.
+  const renditions = [
+    { quality: "original" as Quality, url: "https://m/v/original.mp4", poster: "https://m/v/poster.webp" },
+    { quality: "720" as Quality, url: "https://m/v/720p-abc.mp4", poster: null },
+  ];
+
+  assert.equal(
+    videoPoster(renditions, [
+      { media: "(min-width: 48rem)", src: "https://m/v/720p-abc.mp4" },
+      { src: "https://m/v/original.mp4" },
+    ]),
+    "https://m/v/poster.webp"
+  );
+  assert.equal(videoPoster(renditions, [{ src: "https://m/v/720p-abc.mp4" }]), undefined);
+  assert.equal(videoPoster(ladder([240, 720]).renditions, videoSources(ladder([240, 720]).renditions, "720")), undefined);
+  assert.equal(videoPoster(renditions, []), undefined);
+  assert.equal(videoPoster(null, [{ src: "https://m/v/original.mp4" }]), undefined);
 });

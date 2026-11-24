@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `videoPoster(renditions, sources)` in `sanity-video-ladder/core`, which returns the poster of the
+  rendition behind the first source, else of the next source that has one.
+
+### Fixed
+
+- The README's React and Astro examples used the 24 pixel `placeholder` as the video's poster, so a
+  site that copied them showed a stretched blur until the video played while each rung's sharp poster
+  went unused. They now set the poster with `videoPoster` and paint the placeholder behind the video as
+  a blurred background.
+
 ## [0.1.1] - 2026-11-24
 
 ### Fixed

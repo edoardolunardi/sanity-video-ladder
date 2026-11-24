@@ -8,5 +8,5 @@ export {
   selectShrinkingRenditions,
   videoAspectRatio,
 } from "./renditions.ts";
-export { parseSourceRules, videoSources } from "./sources.ts";
+export { parseSourceRules, videoPoster, videoSources } from "./sources.ts";
 export type { Playback, Quality, Rendition, SourceRule, VideoSource, VideoValue } from "./types.ts";

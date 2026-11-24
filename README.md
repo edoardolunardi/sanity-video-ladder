@@ -138,24 +138,66 @@ rung still plays. The conditions are passed through as written, so they can be a
 can say. Most slots need just one tier (`"720"`), and a breakpoint only where one element spans very
 different sizes.
 
+Every rung has its own poster. Set `poster` with `videoPoster(renditions, sources)`, which takes the
+poster of the rendition behind the first source (the widest condition's, so it stays sharp at every
+size the video renders), and render it on the server as a plain attribute. The `placeholder` is not a
+poster: it is 24 pixels wide, and as a poster it would stay on screen stretched and blocky until the
+video plays. Paint it behind the video instead, blurred, where it fills the box while the poster loads
+and stays for a video stored without posters. The poster or the first frame covers it once painted.
+
+Stretched raw, the placeholder shows its pixels, so wrap it in an SVG that blurs it. It is content
+from the dataset landing in a CSS `url()`, so check it is a base64 image first:
+
+```ts
+// video-background.ts
+import { videoAspectRatio, type VideoValue } from "sanity-video-ladder/core";
+
+const BASE64_IMAGE = /^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/]+=*$/;
+
+/** The placeholder as a CSS background, blurred with opaque edges, or undefined when there is none. */
+export function videoBackground(video: VideoValue): string | undefined {
+  const placeholder = video.placeholder;
+
+  if (!placeholder || !BASE64_IMAGE.test(placeholder)) {
+    return undefined;
+  }
+
+  // 960 is the 24 pixel placeholder times 40, and a deviation of 40 blurs about one source pixel.
+  const height = Math.round(960 / (videoAspectRatio(video) ?? 16 / 9));
+  const svg = [
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 960 ${height}'>`,
+    "<filter id='b' color-interpolation-filters='sRGB'>",
+    "<feGaussianBlur stdDeviation='40' edgeMode='duplicate'/>",
+    "<feComponentTransfer><feFuncA type='discrete' tableValues='1 1'/></feComponentTransfer>",
+    "</filter>",
+    `<image width='100%' height='100%' preserveAspectRatio='none' filter='url(#b)' href='${placeholder}'/>`,
+    "</svg>",
+  ].join("");
+
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") center / cover no-repeat`;
+}
+```
+
 ```tsx
 // React
-import { videoAspectRatio, videoSources, type VideoValue } from "sanity-video-ladder/core";
+import { videoAspectRatio, videoPoster, videoSources, type VideoValue } from "sanity-video-ladder/core";
+import { videoBackground } from "./video-background";
 
 export function SanityVideo({ video, quality = "720" }: { video: VideoValue; quality?: string }) {
   const playback = video.playback ?? {};
+  const sources = videoSources(video.renditions, quality);
 
   return (
     <video
-      poster={video.placeholder ?? undefined}
+      poster={videoPoster(video.renditions, sources)}
       autoPlay={playback.autoplay ?? true}
       muted={playback.muted ?? true}
       loop={playback.loop ?? true}
       controls={playback.controls ?? false}
       playsInline
-      style={{ aspectRatio: videoAspectRatio(video), width: "100%" }}
+      style={{ aspectRatio: videoAspectRatio(video), width: "100%", background: videoBackground(video) }}
     >
-      {videoSources(video.renditions, quality).map((source) => (
+      {sources.map((source) => (
         <source key={source.src} src={source.src} media={source.media} />
       ))}
     </video>
@@ -166,24 +208,30 @@ export function SanityVideo({ video, quality = "720" }: { video: VideoValue; qua
 ```astro
 ---
 // Astro
-import { videoAspectRatio, videoSources, type VideoValue } from "sanity-video-ladder/core";
+import { videoAspectRatio, videoPoster, videoSources, type VideoValue } from "sanity-video-ladder/core";
+import { videoBackground } from "./video-background";
 
 const { video, quality = "720" } = Astro.props as { video: VideoValue; quality?: string };
 const playback = video.playback ?? {};
+const sources = videoSources(video.renditions, quality);
 ---
 
 <video
-  poster={video.placeholder ?? undefined}
+  poster={videoPoster(video.renditions, sources)}
   autoplay={playback.autoplay ?? true}
   muted={playback.muted ?? true}
   loop={playback.loop ?? true}
   controls={playback.controls ?? false}
   playsinline
-  style={{ aspectRatio: videoAspectRatio(video), width: "100%" }}
+  style={{ aspectRatio: videoAspectRatio(video), width: "100%", background: videoBackground(video) }}
 >
-  {videoSources(video.renditions, quality).map((source) => <source src={source.src} media={source.media} />)}
+  {sources.map((source) => <source src={source.src} media={source.media} />)}
 </video>
 ```
+
+A poster downloads as soon as the page is parsed, whatever `preload` says. On a slot with a
+breakpoint, a small screen still downloads the widest condition's poster, which is the price of one
+that stays sharp everywhere.
 
 For any other logic, skip `videoSources`: pass it an array of `{ media, quality }` you built
 yourself, or call `pickRendition(renditions, "720")` and write the markup however you like.
@@ -349,6 +397,7 @@ Runs anywhere: no Studio, no React, no Node built-ins.
 | ----------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `videoSources(renditions, rules)`         | One `{ media?, src }` per rule. `rules` is a `sizes`-style string or an array of `{ media?, quality }`. |
 | `pickRendition(renditions, quality?)`     | The smallest rendition at or above a tier, else the original. Without a tier, the original.  |
+| `videoPoster(renditions, sources)`        | The poster of the first source's rendition, else of the next source that has one, else `undefined`. |
 | `parseSourceRules(string)`                | The rules `videoSources` reads from a string, to inspect or extend.                          |
 | `videoAspectRatio(video)`                 | Width over height of the source, or `undefined`.                                             |
 | `hasRenditions(video)`                    | Whether the value has anything to play.                                                      |
@@ -392,8 +441,8 @@ rejected with a re-export hint before anything is uploaded.
 
 **Poster and placeholder.** One decoded frame, at a time the editor scrubs to, gives everything: a
 WebP poster for the original (capped at 1920x1080), a downscaled poster per rung, and a 24 pixel WebP
-blur stored as a base64 `placeholder` for the site to paint while the video loads. The stored
-`dimensions` are the source's display size, so the aspect ratio is exact.
+blur stored as a base64 `placeholder` for the site to paint behind the video while the poster loads.
+The stored `dimensions` are the source's display size, so the aspect ratio is exact.
 
 **The ladder.** Each checked rung is transcoded to H.264 MP4 at constant quality (quantizer 20, the
 equivalent of ffmpeg's CRF 20), with a bitrate fallback for browsers whose encoder cannot do
